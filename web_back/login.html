@@ -30,6 +30,7 @@
         </div>
     </div>
     <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./tools/config.js"></script>
     <script>
         /*
         步骤：
@@ -59,7 +60,7 @@
             else {
                 $.ajax({
                     type: 'POST',
-                    url: 'http://localhost:8000/admin/login',
+                    url: LOGIN,
                     data: {
                         user_name: username,
                         password: password
