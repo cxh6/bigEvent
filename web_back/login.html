@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" type="text/css" href="css/iconfont.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" href="./js/bootstrap/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -29,8 +30,32 @@
             </form>
         </div>
     </div>
+
+
+    <!-- 模态框提示信息模块！ -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">提示信息</h4>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">确定</button>
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/bootstrap/js/bootstrap.min.js"></script>
     <script src="./tools/config.js"></script>
+    <script src="./tools/user.js"></script>
     <script>
         /*
         步骤：
@@ -48,35 +73,32 @@
         // 获取
         var $input_txt = $(".input_txt"); //用户名输入框
         var $input_pass = $(".input_pass");//密码输入框
+        // var $myModal = $("#myModal");
         // 1.给按钮设置点击事件
         $(".input_sub").on("click", function () {
             // 2.判断输入框的内容是否为空
             var username = $input_txt.val().trim();
             var password = $input_pass.val().trim();
             if (username === "" || password === "") {
-                return alert("请完整填写内容");
+                $("#myModal").modal("show").find(".modal-body").html("请完整填写内容");
+                return //alert("请完整填写内容");
             }
             // 3.如果内容检测通过，将内容发送给接口进行检测
             else {
-                $.ajax({
-                    type: 'POST',
-                    url: LOGIN,
+                // 调用了user.js中的login方法
+                user.login({
                     data: {
                         user_name: username,
                         password: password
                     },
-                    success: function (res) {
-                        // console.log(res);
-                        // 4.根据响应状态进行判断
-                        if (res.code === 200) {
-                            location.href = "./index.html";
-                        } else {
-                            alert("用户名或密码错误");
-                        }
-
+                    success: function () {
+                        location.href = "./index.html";
+                    },
+                    fail: function () {
+                        // alert("用户名或密码错误");
+                        $("#myModal").modal("show").find(".modal-body").html("用户名或密码错误");
                     }
-
-                });
+                })
             }
         });
     </script>
