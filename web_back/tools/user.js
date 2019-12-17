@@ -39,13 +39,26 @@ var user = {
         $.ajax({
             url: GET_USER,
             success: function (res) {
-                console.log(res);
-
+                // console.log(res);
                 if (res.code === 200) {
                     // 这里的res 是 实参
                     options.success(res);
                 }
             }
         });
+    },
+    // ---------------------设置getUserInfo方法，用来获取用户基本信息
+    getUserInfo: function (options) {
+        $.ajax({
+            url: 'http://localhost:8000/admin/userinfo_get',
+            success: function (res) {
+                // console.log(res);
+                // 判断是否接收成功
+                if (res.code === 200) {
+                    options.success(res);
+                }
+
+            }
+        })
     }
 };

@@ -22,49 +22,115 @@
         <div class="container-fluid common_con">
             <form class="form-horizontal article_form">
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">用户名称：</label>
+                    <label for="username" class="col-sm-2 control-label">用户名称：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="inputEmail3" value="李思思">
+                        <input type="text" class="form-control" id="username" name="username" value="李思思">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">昵称：</label>
+                    <label for="nickname" class="col-sm-2 control-label">昵称：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="inputEmail3" value="思思">
+                        <input type="text" class="form-control" id="nickname" name="nickname" value="思思">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">邮箱：</label>
+                    <label for="email" class="col-sm-2 control-label">邮箱：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="inputEmail3" value="lisisi@126.com">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="inputPassword3" class="col-sm-2 control-label">用户图标：</label>
-                    <div class="col-sm-10">
-                        <img src="images/2.jpg" alt="" class="user_pic">
-                        <input type="file" id="exampleInputFile">
+                        <input type="text" class="form-control" id="email" name="email" value="lisisi@126.com">
                     </div>
                 </div>
 
                 <div class="form-group">
-                        <label for="inputEmail3" class="col-sm-2 control-label">密码：</label>
-                        <div class="col-sm-4">
-                            <input type="password" class="form-control" id="inputEmail3" value="12345678">
-                        </div>
+                    <label for="user_pic" class="col-sm-2 control-label">用户图标：</label>
+                    <div class="col-sm-10">
+                        <img src="images/2.jpg" alt="" class="user_pic" id="avatar">
+                        <input type="file" id="user_pic" name="user_pic">
                     </div>
-               
-    
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="col-sm-2 control-label">密码：</label>
+                    <div class="col-sm-4">
+                        <input type="password" class="form-control" id="password" name="password" value="12345678">
+                    </div>
+                </div>
+
+
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-success">修改</button>
+                        <!-- <button type="submit" class="btn btn-success" id="xg_btn">修改</button> -->
+                        <button type="button" class="btn btn-success" id="xg_btn">修改</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+    <script src="./tools/config.js"></script>
+    <script src="./tools/user.js"></script>
+    <script>
+        // -----------------------用户信息展示
+        // 发送请求
+        user.getUserInfo({
+            success: function (res) {
+                $.each(res.data, function (key, elm) {
+                    // console.log(key, elm);
+                    // 将input的value替换为请求回来的data里面的数据
+                    // 用户头像展示需要在img中展示，不能给文件域设置地址，所以这里需要先判断一下
+                    if (key === 'user_pic') {
+                        $(".user_pic").prop("src", elm);
+                        return;
+                    }
+                    $('#' + key).val(elm);
+                })
+            }
+        });
+        // ----------------------用户信息的编辑、修改
+        // 给form表单中的元素设置**name**属性，否则无法提交
+        // 还需要进行**提交按钮**处理
+        // 点击修改按钮
+        $("#xg_btn").on("click", function () {
+            // 检测form表单是否填写完整
+            if (
+                // 输入框通过val()检测
+                $("#username").val().trim() === "" ||
+                $("#nickname").val().trim() === "" ||
+                $("#email").val().trim() === "" ||
+                $("#password").val().trim() === "" ||
+                // 文件域加测是否选取文件，通过使用DOM对象的files属性，进行length检测即可
+                $("#user_pic")[0].files.length === 0
+            ) {
+                return alert("请将信息填写完整~");
+            }
+            // 判断都填写完整之后
+            // 将信息（数据）提交给服务器进行编辑（这里使用 FromData！！）
+            var fd = new FormData($("form")[0]);
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:8000/admin/userinfo_edit',
+                data: fd,
+                contentType: false,//不需要jQuery设置内容类型
+                processData: false,//不需要jQuery进行内容处理
+                success: function (res) {
+                    // console.log(res);
+                    // 判断响应是否成功
+                    if (res.code === 200) {
+                        // 让当前user.html的iframe所在的index.html跳转到login.html页面
+                        // window.parent用来获取父页面的window对象，也就是index.html页面的window
+                        // window.parent.location.href = './login.html';
+                        parent.location.href = './login.html';
+                    }
+                }
+            });
+        });
 
+        // --------------------------图片本地预览
+        // 使用change事件监听用户的文件选择操作
+        $("#user_pic").on("change", function () {
+            // console.log($(this)[0].files);//查看文件域选择的文件信息
+            // console.log(URL.createObjectURL($(this)[0].files[0])); //将某个文件的信息传入到方法中
+            $("#.avatar").prop("src", URL.createObjectURL($(this)[0].files[0]));
+        });
+    </script>
 </body>
 
 </html>
