@@ -29,7 +29,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <!-- <tr>
                         <td>未分类</td>
                         <td>uncategorized</td>
                         <td class="text-center">
@@ -67,12 +67,13 @@
                                 class="btn btn-info btn-xs">编辑</a>
                             <a href="javascript:deleteTr( 4 );" class="btn btn-danger btn-xs">删除</a>
                         </td>
-                    </tr>
+                    </tr>-->
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal">新增分类</a>
+                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal"
+                                id="addCate">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
@@ -80,57 +81,207 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addModal" >
+    <div class="modal fade" id="addModal">
         <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
-              <h4 class="modal-title">新增分类</h4>
-            </div>
-            <div class="modal-body">
-              <form>
-                <div class="form-group">
-                  <label for="recipient-name" class="control-label">分类名称:</label>
-                  <input type="text" class="form-control" id="recipient-name">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                    <h4 class="modal-title">新增分类</h4>
                 </div>
-                <div class="form-group">
-                  <label for="message-text" class="control-label">分类别名:</label>
-                  <input type="text" class="form-control" id="recipient-name">
+                <div class="modal-body">
+                    <form>
+                        <!-- 设置隐藏域 -->
+                        <input type="hidden" id="hidden" name="id">
+                        <div class="form-group">
+                            <label for="cate_name" class="control-label">分类名称:</label>
+                            <input type="text" class="form-control" id="cate_name" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="cate_slug" class="control-label">分类别名:</label>
+                            <input type="text" class="form-control" id="cate_slug" name="slug">
+                        </div>
+                    </form>
                 </div>
-              </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="modal_shutoff">关闭</button>
+                    <button type="button" class="btn btn-primary" id="modal_add">新增</button>
+                    <button type="button" style="display:none;" class="btn btn-primary" id="modal_edit">提交编辑</button>
+                </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" id="model_shutoff">关闭</button>
-              <button type="button" class="btn btn-primary" id="model_add">新增</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
+    <!--  -->
+    <!-- <script>
+        $('#addModal').modal({
+            show: false,
+            backdrop: false
+        });
 
-      <script>
-          $('#addModal').modal({
-            show:false,
-            backdrop:false
-          });
-
-          $('#model_shutoff').click(function(){
+        $('#model_shutoff').click(function () {
             alert('shutoff');
             $('#addModal').modal('hide');
-          });
+        });
 
-          $('#model_add').click(function(){
+        $('#model_add').click(function () {
             alert('add');
             $('#addModal').modal('hide');
-          });
+        });
 
-          $('.category_table').delegate('a','click',function(){
-              if($(this).hasClass('btn-info')){
+        $('.category_table').delegate('a', 'click', function () {
+            if ($(this).hasClass('btn-info')) {
                 $('#addModal .modal-title').html('修改分类名称');
                 $('#addModal').modal('show');
-              }
-          })      
-      </script>
+            }
+        })      
+    </script> -->
+    <script src="./tools/config.js"></script>
+    <script src="./tools/article.js"></script>
+    <!-- 引入模板引擎文件 -->
+    <script src="./js/template-web.js"></script>
+    <!-- 设置分类表格的模板结构 -->
+    <script type="text/template" id="category">
+    {{each data}}
+    <tr>
+        <td>{{$value.name}}</td>
+        <td>{{$value.slug}}</td>
+        <td class="text-center">
+            <a href="javascript:;"
+                class="btn btn-info btn-xs" data-id='{{$value.id}}' id="edit">编辑</a>
+            <a href="javascript:;" class="btn btn-danger btn-xs" data-id='{{$value.id}}' id="del">删除</a>
+        </td>
+    </tr>
+    {{/each}}
+    </script>
 
+    <script>
+        // ----------------------分类数据展示功能
+        article.getCategory({
+            success: function (res) {
+                // 调用模板方法生成结构
+                var htmlStr = template("category", res);
+                // 放入页面中（tbody）
+                $("tbody").html(htmlStr);
+            }
+        });
+        // --------------------新增分类数据
+        // ---1.设置新增按钮点击事件
+        $("#modal_add").on("click", function () {
+            // --2.判断内容是否为空
+            var nameVal = $("#cate_name").val().trim();
+            var slugVal = $("#cate_slug").val().trim();
+            // console.log(nameVal, slugVal);
+            if (nameVal === "" || slugVal === "") {
+                return alert("请完整填写内容~");
+            }
+            // ---3.如果内容完整，将数据发送给服务器
+            article.addCate({
+                success: function () {
+                    // 页面刷新
+                    location.reload();
+                },
+                fail: function () {
+                    // 如果失败，可能是因为名称或别名重复，进行提示即可
+                    alert("名称或别名重复,请重新填写");
+                    $("form")[0].reset();
+                    // $("#addModal").modal("hide");
+                }
+            });
+        });
+        // ----4.设置关闭按钮功能
+        $("#modal_shutoff").on("click", function () {
+            // console.log($("form"));
+            $("form")[0].reset(); //form表单重置
+            $("#addModal").modal("hide");
+        });
+
+        // 
+        // -----------------------------分类数据编辑功能
+        // 编辑和新增使用的是同一个模态框
+        //  - 设置一个提交编辑按钮，用来进行编辑操作
+        // 进行操作效果处理：点击新增，将提交编辑按钮隐藏，点击编辑，将新增按钮隐藏
+
+        // ---1 新增分类按钮点击(设置模态框的提交编辑按钮隐藏，新增按钮显示)
+        $("#addCate").on("click", function () {
+            $("#modal_edit").hide();
+            $("#modal_add").show();
+        });
+        // ---2.点击编辑按钮(设置模态框的提交编辑按钮显示，新增按钮隐藏)
+        $("tbody").on("click", "#edit", function () {
+            // console.log($(this));
+            // 先显示模态框，再进行按钮的操作
+            $("#addModal").modal("show");
+            $("#modal_edit").show();
+            $("#modal_add").hide();
+            // 将要编辑的数据显示到模态框中
+            // var id = $(this).data("id");//获取当前元素的data-id属性
+            // console.log(id);
+            $("#hidden").val($(this).data("id"));
+            var $tds = $(this).parents("tr").children();//获取当前行中所以的td
+            // console.log($tds);
+            $("#cate_name").val($tds.eq(0).html());
+            $("#cate_slug").val($tds.eq(1).html());
+        });
+        // ---3.编辑文章类别
+        // 点击提交编辑按钮，将数据发送给服务器
+        $("#modal_edit").on("click", function () {
+            // 判断一下，内容是否为空
+            var nameVal = $("#cate_name").val().trim();
+            var slugVal = $("#cate_slug").val().trim();
+            // console.log(nameVal, slugVal);
+            if (nameVal === "" || slugVal === "") {
+                return alert("请完整填写内容~");
+            }
+            // 如果不为空，将数据提交给服务器
+            /*  $.ajax({
+                  type: 'POST',
+                  url: 'http://localhost:8000/admin/category_edit',
+                  data: $("form").serialize(),
+                  success: function (res) {
+                      // console.log(res);
+                      // 判断是否响应成功
+                      if (res.code === 200) {
+                          // 刷新页面
+                          location.reload();
+                      } else {
+                          // ************#########************
+                          // 如果失败，可能是因为名称或别名重复，进行提示即可
+                          alert("名称或别名重复,请重新填写");
+                          $("form")[0].reset();
+                          // $("#addModal").modal("hide");
+                      }
+                  }
+              });*/
+            article.editCate({
+                success: function () {
+                    // 刷新页面
+                    location.reload();
+                },
+                fail: function () {
+                    // ************#########************
+                    // 如果失败，可能是因为名称或别名重复，进行提示即可
+                    alert("名称或别名重复,请重新填写");
+                    $("form")[0].reset();
+                    // $("#addModal").modal("hide");
+                }
+            });
+            //   
+        });
+        //------------------------------分类数据删除功能
+        $("tbody").on("click", "#del", function () {
+            // 获取当前的data-id属性
+            var id = $(this).data("id");
+            // 将id发送给服务器
+            article.delCate({
+                data: {
+                    id: id
+                },
+                success: function () {
+                    // 刷新页面
+                    location.reload();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

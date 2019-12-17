@@ -10,3 +10,7 @@ var LOGIN = BASE_URL + '/admin/login';  //用户登录接口
 var LOGOUT = BASE_URL + '/admin/logout';//用户退出接口
 var GET_USER = BASE_URL + '/admin/getuser';//用户基本信息接口
 var GETUSER_INFO = BASE_URL + '/admin/userinfo_get';//用户信息接口
+var GET_CATEGORY = BASE_URL + '/admin/category_search';//获取分类数据接口
+var ADD_CATE = BASE_URL + '/admin/category_add';//新增分类数据接口
+var EDIT_CATE = BASE_URL + '/admin/category_edit';//编辑文章类别接口
+var DEL_CATE = BASE_URL + '/admin/category_delete';//分类数据删除接口
