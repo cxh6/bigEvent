@@ -6,5 +6,6 @@
 
 var BASE_URL = 'http://localhost:8000';//通过变量来保存地址
 // 后续的接口地址都基于基地址拼接即可
-var LOGIN = BASE_URL + '/admin/login';
-var LOGOUT = BASE_URL + '/admin/logout';
+var LOGIN = BASE_URL + '/admin/login';  //用户登录接口
+var LOGOUT = BASE_URL + '/admin/logout';//用户退出接口
+var GET_USER = BASE_URL + '/admin/getuser';//用户基本信息接口

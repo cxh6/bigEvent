@@ -138,6 +138,7 @@
     </script>
     <script src="./tools/config.js"></script>
     <script src="./tools/user.js"></script>
+    <!-- 用户退出 -->
     <script>
         var $logout = $("#logout");
         $logout.on("click", function () {
@@ -159,6 +160,17 @@
                 }
             })
         })
+    </script>
+    <!-- 用户基本信息 -->
+    <script>
+        user.getUser({
+            // 获取左侧和右上角头像
+            success: function (res) {
+                $(".user_info img,.user_center_link img").prop("src", res.data.user_pic);
+                // 头像设置
+                $(".user_info span").html(`欢迎&nbsp;&nbsp;${res.data.nickname}`);
+            }
+        });
     </script>
 </body>
 
