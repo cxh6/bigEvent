@@ -19,3 +19,4 @@ var DEL_CATE = BASE_URL + '/admin/category_delete';//分类数据删除接口
 // 
 var DEL_ARTICLE = BASE_URL + '/admin/article_delete';//文章删除操作接口
 var GET_ART = BASE_URL + '/admin/search';//请求文章数据(筛选)接口
+var PUBLISH_ART = BASE_URL + '/admin/article_publish';//发布文章操作接口

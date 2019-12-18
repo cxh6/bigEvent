@@ -25,35 +25,36 @@
         <div class="container-fluid common_con">
             <form class="form-horizontal article_form">
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">文章标题：</label>
+                    <label for="title" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail3" placeholder="文章标题">
+                        <input type="email" class="form-control" id="title" placeholder="文章标题" name="title">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputPassword3" class="col-sm-2 control-label">文章封面：</label>
+                    <label for="cover" class="col-sm-2 control-label">文章封面：</label>
                     <div class="col-sm-10">
-                        <input type="file" id="exampleInputFile">
+                        <input type="file" id="cover" name="cover">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
+                    <label for="cateDown" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control">
-                            <option>1</option>
+                        <select class="form-control" id="cateDown" name="type">
+                            <!-- <option>1</option>
                             <option>2</option>
                             <option>3</option>
                             <option>4</option>
-                            <option>5</option>
+                            <option>5</option> -->
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">发布时间：</label>
+                    <label for="date" class="col-sm-2 control-label">发布时间：</label>
                     <div class="col-sm-4">
 
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="dateinput">
+                            <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="dateinput" name="date"
+                                readonly>
                             <span class="input-group-btn">
                                 <button class="btn btn-default" type="button"
                                     onclick="jeDate('#dateinput',{trigger:false,format: 'YYYY-MM-DD'})"><i
@@ -65,21 +66,111 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
                     <div class="col-sm-10">
-                        <textarea class="form-control" id="rich_content" name="content" placeholder="文章内容">
+                        <textarea class="form-control con" id="rich_content" name="content" placeholder="文章内容">
                             Lorem ipsum dolor sit amet consectetur adipisicing elit. Assumenda fugiat illo nihil molestias ab. Laborum eius non atque, totam sapiente quae obcaecati assumenda ratione inventore pariatur maiores, qui libero delectus.
                             </textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-success">发布</button>
-                        <button type="submit" class="btn btn-default">存为草稿</button>
+                        <button type="button" class="btn btn-success" id="publish">发布</button>
+                        <button type="button" class="btn btn-default" id="caogao">存为草稿</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+    <!-- 引入模板引擎 -->
+    <script src="../web_back/js/template-web.js"></script>
+    <!-- 分别引入config.js和article.js文件 -->
+    <script src="./tools/config.js"></script>
+    <script src="./tools/article.js"></script>
+    <script type="text/template" id='category'>
+{{each data}}
+<option value="{{$value.id}}">{{$value.name}}</option>
+{{/each}}
+</script>
 
+    <script>
+        // ---------------------获取文章类别
+        // ---调用article.js文件里的 getCategory()方法，用来进行获取文章类别
+        article.getCategory({
+            success: function (res) {
+                // 使用模板生成结构
+                var htmlStr = template("category", res);
+                // 放入页面中
+                $("#cateDown").html(htmlStr);
+            }
+        });
+        // console.log($("#date"));
+
+        //  -------------点击发布按钮，进行发布
+        $("#publish").on("click", function () {
+            var state1 = "已发布";
+            btn_send(state1);
+        });
+        //  -------------点击草稿按钮，进行操作
+        $("#caogao").on("click", function () {
+            var state1 = "草稿";
+            btn_send(state1);
+        });
+        // 
+        function btn_send(state1) {
+            // 判断内容是否为空
+            var title = $("#title").val().trim();
+            var type = $("#type").val();
+            var dateinput = $("#date").val();
+            var con = tinymce.activeEditor.getContent();//将富文本编辑器内容取出
+            // console.log(con);
+            // 获取不带HTML标记的纯文本内容： 
+            var activeEditor = tinymce.activeEditor;
+            var editBody = activeEditor.getBody();
+            activeEditor.selection.select(editBody);
+            var text = activeEditor.selection.getContent({ 'format': "text" }).trim();
+            // console.log(text);
+            // 如果富文本编辑器里面的内容为空(也就是空白格)，就让con等于text
+            if (text === "") {
+                // console.log("内容为空");
+                con = text;
+
+            } else {
+                // 不为空，就让con=con
+                con = con;
+                // console.log("内容不为空");
+
+            }
+            // return;
+
+            if (
+                title === "" ||
+                type === "" ||
+                dateinput === "" ||
+                con === "" ||
+                $("#cover")[0].files === 0
+            ) {
+                return alert("请完整填写内容");
+            }
+            // console.log($("#cover")[0].files);
+
+            var fd = new FormData($("form")[0]);
+            fd.append('content', con); // 将con添加到fd
+            fd.append('state', state1); // 将已发布添加到fd
+            // 发送请求
+            //    调用article.js中的publishArt()方法，用来进行发布文章操作
+            article.publishArt({
+                data: {
+                    fd: fd
+                },
+                success: function () {
+                    // 成功后进行跳转到列表展示页面
+                    location.href = 'article_list.html';
+                },
+                fail: function () {
+                    alert("网络不好，请稍后再试~");
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

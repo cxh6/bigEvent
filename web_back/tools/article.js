@@ -134,6 +134,26 @@ var article = {
                 }
             }
         });
+    },
+    // --------------------------article_release.html页面
+    // -----------------设置publishArt()方法，用来进行发布文章操作
+    publishArt(options) {
+        $.ajax({
+            type: 'POST',
+            url: PUBLISH_ART,
+            data: options.data.fd,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                // console.log(res);
+                // 判断是否响应成功
+                if (res.code === 201) {
+                    options.success();
+                } else {
+                    options.fail();
+                }
+            }
+        });
     }
 
 };
