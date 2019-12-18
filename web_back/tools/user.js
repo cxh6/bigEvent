@@ -47,7 +47,7 @@ var user = {
             }
         });
     },
-    // ---------------------设置getUserInfo方法，用来获取用户信息
+    // ---------------------设置getUserInfo方法，用来获取用户详细信息
     getUserInfo: function (options) {
         $.ajax({
             url: GETUSER_INFO,
