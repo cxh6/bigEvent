@@ -28,23 +28,23 @@
         <div class="menu">
             <div class="menu_collapse fl">
                 <a href="javascript:;" class="level_one"><i class="fa fa-list-ul"></i>全部分类</a>
-                <ul class="level_two">
+                <ul class="level_two" id="cateAll">
                     <li class="up"></li>
-                    <li><a href="#">最 新</a></li>
+                    <!-- <li><a href="#">最 新</a></li>
                     <li><a href="#">科 技</a></li>
                     <li><a href="#">股 市</a></li>
                     <li><a href="#">商 品</a></li>
                     <li><a href="#">外 汇</a></li>
-                    <li><a href="#">公 司</a></li>
+                    <li><a href="#">公 司</a></li> -->
                 </ul>
             </div>
-            <ul class="left_menu fl">
-                <li><a href="#">最 新</a></li>
+            <ul class="left_menu fl" id="top_nav">
+                <!-- <li><a href="#">最 新</a></li>
                 <li><a href="#">科 技</a></li>
                 <li><a href="#">股 市</a></li>
                 <li><a href="#">商 品</a></li>
                 <li><a href="#">外 汇</a></li>
-                <li><a href="#">公 司</a></li>
+                <li><a href="#">公 司</a></li> -->
             </ul>
             <ul class="right_menu fr">
                 <li><a href="#">科技专题</a></li>
@@ -56,7 +56,7 @@
     <div class="main_con clearfix">
         <div class="left_con">
             <ul class="focus_list">
-                <li class="first">
+                <!-- <li class="first">
                     <a href="#"><img src="images/pic01.jpg" alt=""></a>
                     <p>图片说明</p>
                 </li>
@@ -75,7 +75,7 @@
                 <li>
                     <a href="#"><img src="images/pic06.jpg" alt=""></a>
                     <p>图片说明</p>
-                </li>
+                </li> -->
             </ul>
 
             <div class="common_title">
@@ -83,7 +83,7 @@
                 <a href="#" class="more"><i class="fa fa-angle-double-right"></i></a>
             </div>
 
-            <div class="common_news_list">
+            <!-- <div class="common_news_list">
                 <a href="#" class="list_pic"><img src="images/pic09.jpg" alt=""></a>
                 <h4><a href="#">亚马逊金融试水中国？背后却是和华尔街的“金融战争” </a></h4>
                 <p>亚马逊抛弃了中国的买家们，却难以割舍庞大的卖家市场，有消息指出亚马逊中国将针对中国庞大的卖家群体推出一项贷款推荐计划。在连续对印度、墨西哥等新兴市场大力推广线上支付服务后，亚马逊金融试水进军中国市场的信号终于被放出。
@@ -141,7 +141,7 @@
                         )&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting"></i>&nbsp;评论( 10 )</span>
                     <b>发布于 2018-08-30 12:18:58</b>
                 </div>
-            </div>
+            </div> -->
 
         </div>
         <div class="right_con">
@@ -215,12 +215,110 @@
             <span>|</span>
             <a href="#">招聘人才</a>
             <span>|</span>
-            <a href="#">友情链接</a>		
+            <a href="#">友情链接</a>
         </div>
-        <p>CopyRight © 2019 深圳大事件信息技术股份有限公司   All Rights Reserved</p>
-        <p>电话：0755-****888    粤ICP备*******8号</p>
+        <p>CopyRight © 2019 深圳大事件信息技术股份有限公司 All Rights Reserved</p>
+        <p>电话：0755-****888 粤ICP备*******8号</p>
     </div>
+    <script src="./js/axios.js"></script>
+    <!-- 引入JQ文件 -->
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <!-- 引入模板引擎 -->
+    <script src="../web_back/js/template-web.js"></script>
+    <!-- 设置首页顶部文章信息展示结构 -->
+    <script type="text/template" id="artShow">
+        {{each data}}
+        <li {{if $index===0}} class="first" {{/if}}>
+            <a href="./article.html?id={{$value.id}}"><img src="{{$value.cover}}" alt=""></a>
+            <p>{{$value.title}}</p>
+        </li>
+        {{/each}}
+    </script>
+    <!-- 设置顶部分类导航栏结构 -->
+    <script type="text/template" id="topNav">
+{{each data}}
+<li><a href="./list.html?id={{$value.id}}">{{$value.name}}</a></li>
+{{/each}}
+    </script>
+    <!-- 设置最新资讯结构 -->
+    <script type="text/template" id="newList">
+        {{each data}}
+        <div class="common_news_list">
+            <a href="#" class="list_pic"><img src="{{$value.cover}}" alt=""></a>
+                <h4><a href="./article.html?id={{$value.id}}" id="art">{{$value.title}}</a></h4>
+                <p>{{@$value.content}}</p>
+                <div class="new_info">
+                    <span>标签：{{$value.type}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"></i>&nbsp;阅读( {{$value.read}}
+                        )&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting"></i>&nbsp;评论( {{$value.comment}} )</span>
+                    <b>发布于 {{$value.date}}</b>
+                </div>
+            </div>
+            {{/each}}
+    </script>
+    <script>
+        // 前台页面中，我们使用axios进行请求操作，使用JQ进行页面结构操作
+        // -----------------首页顶部的文章信息展示
+        // 请求文章数据
+        // perpage为参数，用来设置需要的文章数量，此处需要5条
+        axios.get('http://localhost:8000/admin/search',
+            {
+                params: {
+                    perpage: 5
+                }
+            }).then(function (res) {
+                // console.log(res);
+                res = res.data;
+                // 判断是否响应成功
+                if (res.code === 200) {
+                    // 通过模板引擎进行结构创建
+                    var htmlStr = template("artShow", res);
+                    // 放入页面中
+                    $(".focus_list").html(htmlStr);
+                }
+            });
+        // -----------------获取顶部分类导航栏展示
+        var top_nav = $("#top_nav");
+        getNav(top_nav);
+        // -------------------获取顶部全部分类导航栏展示
+        var cateAll = $("#cateAll");
+        getNav(cateAll);
 
+        function getNav(nav) {
+            axios.get('http://localhost:8000/admin/category_search').then(function (res) {
+                // console.log(res);
+                res = res.data;
+                // 判断是否响应成功
+                if (res.code === 200) {
+                    // 模板引擎生成结构
+                    var htmlStr = template("topNav", res);
+                    // 放入页面中
+                    nav.html(htmlStr);
+                }
+            });
+        }
+
+
+        // ---------------最新资讯展示
+        axios({
+            method: 'GET',
+            url: 'http://localhost:8000/admin/search',
+            params: {
+                perpage: 5
+            }
+        }).then(function (res) {
+            // console.log(res);
+            res = res.data;
+            // 判断是否响应成功
+            if (res.code === 200) {
+                // 使用模板生成结构
+                var htmlStr = template("newList", res);
+                // console.log(htmlStr);
+
+                // 放入页面中
+                $(".common_title").after(htmlStr);
+            }
+        });
+    </script>
 </body>
 
 </html>

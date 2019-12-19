@@ -28,23 +28,23 @@
         <div class="menu">
             <div class="menu_collapse fl">
                 <a href="javascript:;" class="level_one"><i class="fa fa-list-ul"></i>全部分类</a>
-                <ul class="level_two">
+                <ul class="level_two" id="cateAll">
                     <li class="up"></li>
-                    <li><a href="#">最 新</a></li>
+                    <!-- <li><a href="#">最 新</a></li>
                     <li><a href="#">科 技</a></li>
                     <li><a href="#">股 市</a></li>
                     <li><a href="#">商 品</a></li>
                     <li><a href="#">外 汇</a></li>
-                    <li><a href="#">公 司</a></li>
+                    <li><a href="#">公 司</a></li> -->
                 </ul>
             </div>
-            <ul class="left_menu fl">
-                <li><a href="#">最 新</a></li>
+            <ul class="left_menu fl" id="top_nav">
+                <!-- <li><a href="#">最 新</a></li>
                 <li><a href="#">科 技</a></li>
                 <li><a href="#">股 市</a></li>
                 <li><a href="#">商 品</a></li>
                 <li><a href="#">外 汇</a></li>
-                <li><a href="#">公 司</a></li>
+                <li><a href="#">公 司</a></li> -->
             </ul>
             <ul class="right_menu fr">
                 <li><a href="#">科技专题</a></li>
@@ -54,9 +54,9 @@
     </div>
 
     <div class="main_con clearfix">
-        <div class="left_con setfr">
-            <div class="breadcrumb">
-                当前位置： <a href="#">首页</a> &gt; <a href="#">科技</a> &gt; 文章详情
+        <div class="left_con setfr" id="art">
+            <!--<div class="breadcrumb">
+                当前位置： <a href="./index.html">首页</a> &gt; <a href="#" id="fl">科技</a> &gt; 文章详情
             </div>
             <h3 class="article_title">马斯克的新花样？连接人脑和电脑的初创公司又筹了一笔钱</h3>
             <div class="article_info">杰克 发布于 2019-05-08 07:08:46&nbsp;&nbsp;&nbsp;分类: 奇趣事&nbsp;&nbsp;&nbsp;阅读:
@@ -74,8 +74,8 @@
 
                 <p>2016年，Neuralink在美国加利福尼亚州以医学研究公司的名义成立，之后一直低调运行。</p>
 
-            </div>
-            <div class="article_links">
+            </div>-->
+            <div class="article_links" id="wz">
                 上一篇： <a href="#">世界第一台可以玩游戏的冰箱</a><br>
                 下一篇： <a href="#">世界第一个可以玩游戏的马桶、世界上第一个可以玩游戏的茶杯</a>
             </div>
@@ -204,7 +204,118 @@
         <p>CopyRight © 2019 深圳大事件信息技术股份有限公司 All Rights Reserved</p>
         <p>电话：0755-****888 粤ICP备*******8号</p>
     </div>
+    <!-- 引入axios -->
+    <script src="./js/axios.js"></script>
+    <!-- 引入jq文件 -->
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <!-- 引入模板引擎 -->
+    <script src="../web_back/js/template-web.js"></script>
+    <!-- 设置顶部分类导航栏结构 -->
+    <script type="text/template" id="topNav">
+        {{each data}}
+        <li><a href="./list.html?id={{$value.id}}">{{$value.name}}</a></li>
+        {{/each}}
+            </script>
+    <!-- 设置模板文章结构 -->
+    <script type="text/template" id="article">
 
+    <div class="breadcrumb">
+        当前位置： <a href="./index.html">首页</a> &gt; <a href="#" id="type">{{type}}</a> &gt; 文章详情
+    </div>
+    <h3 class="article_title">{{title}}</h3>
+    <div class="article_info">{{author}} 发布于 {{date}}&nbsp;&nbsp;&nbsp;分类:<span id="type1">
+        {{type}}</span>&nbsp;&nbsp;&nbsp;阅读:
+        ({{read}})&nbsp;&nbsp;&nbsp;评论: ({{comment}})</div>
+    <div class="article_con">
+
+        {{@content}}
+
+    </div>
+
+    </script>
+    <script>
+        // -----------------获取顶部分类导航栏展示
+        var top_nav = $("#top_nav");
+        getNav(top_nav);
+        // -------------------获取顶部全部分类导航栏展示
+        var cateAll = $("#cateAll");
+        getNav(cateAll);
+
+        function getNav(nav) {
+            axios.get('http://localhost:8000/admin/category_search').then(function (res) {
+                // console.log(res);
+                res = res.data;
+                // 判断是否响应成功
+                if (res.code === 200) {
+                    // 模板引擎生成结构
+                    var htmlStr = template("topNav", res);
+                    // 放入页面中
+                    nav.html(htmlStr);
+                }
+            });
+        }
+
+
+
+        // --------------------文章展示
+        // 接收url参数中的id
+        var id = location.search.split("=")[1];
+        // console.log(id);
+        // 发送请求
+        axios({
+            method: "GET",
+            url: 'http://localhost:8000/admin/search',
+            params: { id: id }
+        }).then(function (res) {
+            // console.log(res);
+            res = res.data;
+            // 判断是否响应成功
+            if (res.code === 200) {
+                var type_name;
+                // console.log(type);
+                var type = res.data.type;
+                // console.log(type);
+                // 将type发送给服务器，获取type的名字
+                axios({
+                    method: 'GET',
+                    url: 'http://localhost:8000/admin/category_search',
+                    params: {
+                        id: type
+                    }
+                }).then(function (res) {
+                    // console.log(res);
+                    res1 = res.data;
+                    // console.log(res);
+                    // 判断是否响应成功
+                    if (res1.code === 200) {
+                        for (var i = 0; i < res1.data.length; i++) {
+                            if (res1.data[i].id == type) {
+                                type_name = res1.data[i].name;
+                                // console.log(type_name);
+                                type = type_name;
+                                // console.log(type);
+                                $("#type").html(type);
+                                // console.log(res1.data[i].id);
+                                // var v = res1.data[i].id;
+                                // $("#type").prop("href", v);
+                                $("#type1").html(type);
+                            }
+                        }
+                    }
+                });
+
+
+                // // 生成结构
+                var htmlStr = template("article", res.data);
+                // console.log(htmlStr);
+                // // 放入页面中
+                $("#wz").before(htmlStr);
+                // $("#fl").html(res.type);
+                // console.log(res.data.data.type);
+                // console.log(res.data.title);
+            }
+        });
+    </script>
 </body>
 
 </html>
